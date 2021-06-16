@@ -122,7 +122,7 @@ public class gameSetup : MonoBehaviour
                 }
             }
         }
-    }
+    }    
 
     void calculateNextGeneration() 
     {
@@ -135,7 +135,7 @@ public class gameSetup : MonoBehaviour
                 string[] XYcoord = cell.name.Split(':');
 
                 
-                int adjecantCells = getAdjecantCells(int.Parse(XYcoord[0]), int.Parse(XYcoord[1]));                
+                int adjecantCells = getAdjacentCells(int.Parse(XYcoord[0]), int.Parse(XYcoord[1]));                
                 
                 nextGenCells[i, j] = adjecantCells;
 
@@ -147,9 +147,15 @@ public class gameSetup : MonoBehaviour
         }
     }
 
-    int getAdjecantCells(int x, int y)
+    /// <summary>
+    /// Counts adjacent (3x3=9 total) live cells based around origin cell
+    /// </summary>
+    /// <param name="x">X coord</param>
+    /// <param name="y">Y coord</param>
+    /// <returns>Number of adjecant cells, minus itself if live</returns>
+    int getAdjacentCells(int x, int y)
     {
-        int adjecant = 0;
+        int adjacent = 0;
         int checkX, checkY;
 
         for (int i = -1; i <= 1; i++)
@@ -161,16 +167,16 @@ public class gameSetup : MonoBehaviour
 
                 try
                 {
+                    //If coords are inside worldbounds and contains a live cell then count as neighbour
                     if (checkBounds(checkX) && checkBounds(checkY) && worldGrid[checkX, checkY].tag == "alive")
                     {
-
-                            adjecant++;
-
+                        adjacent++;
                     }
 
+                    //Checks if a number is within the worldgrid
                     bool checkBounds(int check)
                     {
-                        if (check < gridsize && check > 0)
+                        if (check < gridsize && check >= 0)
                         {
                             return true;
                         }
@@ -179,16 +185,18 @@ public class gameSetup : MonoBehaviour
                 }
                 catch (System.Exception e)
                 {
+                    Debug.LogError(e.Message);
                     throw;
                 }
             }
         }
-        //Debug.Log("returning: " + adjecant + " from " + x+":"+y);
+
+        //If coordinate where the search originated contains a live cell, minus 1 since we dont count ourselves as a neighbour
         if (worldGrid[x,y].tag == "alive")
         {
-            adjecant--;
+            adjacent--;
         }
-        return adjecant;
+        return adjacent;
     }
 
     void createGrid()
