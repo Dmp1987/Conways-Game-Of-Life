@@ -1,4 +1,4 @@
-# Conways-Game-Of-Life
+# Conways Game Of Life
  
 Very basic Unity C# script setting up some primitives in a grid and running a conway's game of life inside unity
 
