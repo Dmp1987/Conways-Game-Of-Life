@@ -8,15 +8,13 @@ public class gameSetup : MonoBehaviour
 
     GameObject[,] worldGrid;
     int[,] nextGenCells;
-    int gridsize;
-    //GameObject cell;
-    float lastCheck;
+    int gridsize;        
     bool run;
 
     // Start is called before the first frame update
     void Start()
     {
-        gridsize = 25;     
+        gridsize = 50;     
         run = false;
         nextGenCells = new int[gridsize,gridsize];
         createGrid();
@@ -25,23 +23,9 @@ public class gameSetup : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit))
-            {                
-                Debug.Log(hit.collider.gameObject.name + " is " + hit.collider.gameObject.tag);
-            }
-        }
-
+    {        
         if (Input.GetMouseButtonDown(1))
         {
-            //calculateNextGeneration();
-
-            //updateNextGen();
-
             if (run)
             {
                 run = false;
@@ -60,6 +44,9 @@ public class gameSetup : MonoBehaviour
         
     }
 
+    /// <summary>
+    /// Iterates trough the list containing the adjacent counts for the cells
+    /// </summary>
     private void updateNextGen()
     {
         //i live celle med mindre en 2 i live naboer dør
@@ -80,8 +67,7 @@ public class gameSetup : MonoBehaviour
                         if (cell.tag.StartsWith("ali"))
                         {
                             cellRender.material.color = Color.red;
-                            cell.tag = "dead";
-                            Debug.Log("Death by lonelines: " + cell.name);
+                            cell.tag = "dead";                            
                             break;
                         }
                         break;
@@ -109,13 +95,12 @@ public class gameSetup : MonoBehaviour
                     case 6:
                     case 7:
                     case 8:
-                        if (cell.tag == "alive")
-                        {
-                            Debug.Log("Overpopulation! " + cell.name);
+                        if (cell.tag.StartsWith("ali"))
+                        {                            
                             cellRender.material.color = Color.red;
                             cell.tag = "dead";
                         }
-                        break;
+                        break; 
 
                     default:
                         break;
@@ -124,25 +109,20 @@ public class gameSetup : MonoBehaviour
         }
     }    
 
+
+    /// <summary>
+    /// iterates trough worldgrid counting adjacent cells and adds it to Next Genereation List
+    /// </summary>
     void calculateNextGeneration() 
     {
         for (int i = 0; i < gridsize; i++)
         {
             for (int j = 0; j < gridsize; j++)
             {
-                GameObject cell = worldGrid[i, j];
-                //Debug.Log("doing cell " + cell.name);
-                string[] XYcoord = cell.name.Split(':');
-
-                
-                int adjecantCells = getAdjacentCells(int.Parse(XYcoord[0]), int.Parse(XYcoord[1]));                
-                
+                GameObject cell = worldGrid[i, j];                
+                string[] XYcoord = cell.name.Split(':');                
+                int adjecantCells = getAdjacentCells(int.Parse(XYcoord[0]), int.Parse(XYcoord[1]));                                
                 nextGenCells[i, j] = adjecantCells;
-
- 
-                    //Debug.Log(cell.name + " got " + adjecantCells + " adjecant cells");
-                
-                
             }
         }
     }
@@ -199,6 +179,9 @@ public class gameSetup : MonoBehaviour
         return adjacent;
     }
 
+    /// <summary>
+    /// creates a "blank" grid filled with dead cells
+    /// </summary>
     void createGrid()
     {
         worldGrid = new GameObject[gridsize, gridsize];
@@ -207,34 +190,39 @@ public class gameSetup : MonoBehaviour
         {
             for (int j = 0; j < gridsize; j++)
             {
-                worldGrid[i, j] = renderCell(i, j, false);
+                worldGrid[i, j] = createCell(i, j, false);
             }
         }
+    }
 
-        GameObject renderCell(int x, int y, bool living)
+    /// <summary>
+    /// Creates a cell at a given x y coordinate
+    /// </summary>
+    /// <param name="x">X coordinate</param>
+    /// <param name="y">Y coordinate</param>
+    /// <param name="living">Living or dead cell to be spawned</param>
+    /// <returns>Returns </returns>
+    private GameObject createCell(int x, int y, bool living)
+    {
+        GameObject g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        g.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        g.transform.position = new Vector3(x + 1, 0, y + 1);
+        g.name = x + ":" + y;
+        g.AddComponent<BoxCollider>();
+        g.AddComponent<cellClick>();
+
+        if (living)
         {
-            GameObject g = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            g.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-            g.transform.position = new Vector3(x + 1, 0, y + 1);
-            g.name = x + ":" + y;
-            g.AddComponent<BoxCollider>();
-            g.AddComponent<cellClick>();
-
-            if (living)
-            {
-                g.GetComponent<MeshRenderer>().material.color = Color.green;
-                g.tag = "alive";
-            }
-            else
-            {
-                g.GetComponent<MeshRenderer>().material.color = Color.red;
-                g.tag = "dead";
-            }
-
-            return g;
+            g.GetComponent<MeshRenderer>().material.color = Color.green;
+            g.tag = "alive";
+        }
+        else
+        {
+            g.GetComponent<MeshRenderer>().material.color = Color.red;
+            g.tag = "dead";
         }
 
-
+        return g;
     }
 
 
