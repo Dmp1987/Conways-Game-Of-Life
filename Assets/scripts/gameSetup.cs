@@ -10,11 +10,14 @@ public class gameSetup : MonoBehaviour
     int[,] nextGenCells;
     int gridsize;        
     bool run;
+    Material matAlive;
 
     // Start is called before the first frame update
     void Start()
     {
-        gridsize = 50;     
+        matAlive = Resources.Load("Materials/testMaterial", typeof(Material)) as Material;
+
+        gridsize = 75;     
         run = false;
         nextGenCells = new int[gridsize,gridsize];
         createGrid();
@@ -213,12 +216,14 @@ public class gameSetup : MonoBehaviour
 
         if (living)
         {
-            g.GetComponent<MeshRenderer>().material.color = Color.green;
+            //g.GetComponent<MeshRenderer>().material.color = Color.green;
+            g.GetComponent<Renderer>().material = matAlive;
             g.tag = "alive";
         }
         else
         {
-            g.GetComponent<MeshRenderer>().material.color = Color.red;
+            //g.GetComponent<MeshRenderer>().material.color = Color.red;
+            g.GetComponent<Renderer>().material = matAlive;
             g.tag = "dead";
         }
 
